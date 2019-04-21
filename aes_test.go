@@ -67,3 +67,23 @@ func TestEncrypt(t *testing.T) {
 		}
 	}
 }
+
+func TestDecrypt(t *testing.T) {
+	testCases := []struct {
+		ciphertext string
+		passphrase string
+		expected   string
+	}{
+		{"hlwjlfFMLUIWbbjyphbr4b1mbCsGYS3Ciy4gXvSnZg==", "foo", "bar"},
+		{"vJ5fbgmTTPDc+ebBYbjaCq7JjOQWSy10T3JyC3wfF4Xp0UoEaq40", "bites", "rattlesnake"},
+		{"R8DVyNffT7wwsuHFnP03gEz6PuafTMCn52uJoDJaljQ2hica/D+VGPXQXg==", "good men", "Now is the time"},
+		{"tFcAmq1O0Ze0yw879U4PTNZ8lMxUxZWhSVZ758BmRD+RVWBh9fwQ", "<>?,./", "!@#$%^&*()_"},
+	}
+
+	for _, testCase := range testCases {
+		answer := Decrypt(testCase.ciphertext, testCase.passphrase)
+		if answer != testCase.expected {
+			t.Errorf("ERROR: For %v, expected %v, got %v", testCase.ciphertext, testCase.expected, answer)
+		}
+	}
+}
