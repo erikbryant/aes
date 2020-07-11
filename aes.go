@@ -21,6 +21,7 @@ func destringify(data string) []byte {
 	if err != nil {
 		panic(err.Error())
 	}
+
 	return base64Dec
 }
 
@@ -28,42 +29,56 @@ func destringify(data string) []byte {
 func makeKey(key string) string {
 	hasher := md5.New()
 	hasher.Write([]byte(key))
+
 	return hex.EncodeToString(hasher.Sum(nil))
 }
 
 // Encrypt performs AES encryption on data using a given passphrase.
-func Encrypt(plainData string, passphrase string) string {
+func Encrypt(plainData string, passphrase string) (string, error) {
 	data := []byte(plainData)
-	block, _ := aes.NewCipher([]byte(makeKey(passphrase)))
+
+	block, err := aes.NewCipher([]byte(makeKey(passphrase)))
+	if err != nil {
+		return "", err
+	}
+
 	gcm, err := cipher.NewGCM(block)
 	if err != nil {
-		panic(err.Error())
+		return "", err
 	}
+
 	nonce := make([]byte, gcm.NonceSize())
 	if _, err = io.ReadFull(rand.Reader, nonce); err != nil {
-		panic(err.Error())
+		return "", err
 	}
+
 	ciphertext := gcm.Seal(nonce, nonce, data, nil)
-	return stringify(ciphertext)
+
+	return stringify(ciphertext), nil
 }
 
 // Decrypt decrypts an AES block using a given passphrase.
-func Decrypt(cipherData string, passphrase string) string {
+func Decrypt(cipherData string, passphrase string) (string, error) {
 	data := destringify(cipherData)
+
 	key := []byte(makeKey(passphrase))
+
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		panic(err.Error())
+		return "", err
 	}
+
 	gcm, err := cipher.NewGCM(block)
 	if err != nil {
-		panic(err.Error())
+		return "", err
 	}
+
 	nonceSize := gcm.NonceSize()
 	nonce, ciphertext := data[:nonceSize], data[nonceSize:]
 	plaintext, err := gcm.Open(nil, nonce, ciphertext, nil)
 	if err != nil {
-		panic(err.Error())
+		return "", err
 	}
-	return string(plaintext)
+
+	return string(plaintext), nil
 }

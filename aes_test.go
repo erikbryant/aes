@@ -60,8 +60,16 @@ func TestEncrypt(t *testing.T) {
 	}
 
 	for _, testCase := range testCases {
-		ciphertext := Encrypt(testCase.plaintext, testCase.passphrase)
-		answer := Decrypt(ciphertext, testCase.passphrase)
+		ciphertext, err := Encrypt(testCase.plaintext, testCase.passphrase)
+		if err != nil {
+			t.Errorf("ERROR: For %v, got Encrypt error %s", testCase.plaintext, err)
+			continue
+		}
+		answer, err := Decrypt(ciphertext, testCase.passphrase)
+		if err != nil {
+			t.Errorf("ERROR: For %v, got Decrypt error %s", testCase.plaintext, err)
+			continue
+		}
 		if answer != testCase.plaintext {
 			t.Errorf("ERROR: For %v, got %v", testCase.plaintext, answer)
 		}
@@ -81,7 +89,11 @@ func TestDecrypt(t *testing.T) {
 	}
 
 	for _, testCase := range testCases {
-		answer := Decrypt(testCase.ciphertext, testCase.passphrase)
+		answer, err := Decrypt(testCase.ciphertext, testCase.passphrase)
+		if err != nil {
+			t.Errorf("ERROR: For %v, got error %s", testCase.ciphertext, err)
+			continue
+		}
 		if answer != testCase.expected {
 			t.Errorf("ERROR: For %v, expected %v, got %v", testCase.ciphertext, testCase.expected, answer)
 		}
