@@ -98,4 +98,12 @@ func TestDecrypt(t *testing.T) {
 			t.Errorf("ERROR: For %v, expected %v, got %v", testCase.ciphertext, testCase.expected, answer)
 		}
 	}
+
+	answer, err := Decrypt("", "")
+	if err == nil {
+		t.Errorf("ERROR: For empty strings, exptected err to be non-nil")
+	}
+	if answer != "" {
+		t.Errorf("ERROR: For empty strings, exptected answer to be empty string")
+	}
 }

@@ -9,6 +9,10 @@ Based on the encryption article by [Nic Raboy](https://www.thepolyglotdeveloper.
 ### Encrypt
 
 ```golang
+import (
+  "github.com/erikbryant/aes"
+)
+
 plainText := "rattlesnake"
 passphrase := "bites"
 
@@ -21,6 +25,10 @@ if err != nil {
 ### Decrypt
 
 ```golang
+import (
+  "github.com/erikbryant/aes"
+)
+
 cipherText := "vJ5fbgmTTPDc+ebBYbjaCq7JjOQWSy10T3JyC3wfF4Xp0UoEaq40"
 passphrase := "bites"
 
