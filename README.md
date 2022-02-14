@@ -16,7 +16,7 @@ import (
 plainText := "rattlesnake"
 passphrase := "bites"
 
-cipherText, err := Encrypt(plainText, passphrase)
+cipherText, err := aes.Encrypt(plainText, passphrase)
 if err != nil {
   return err
 }
