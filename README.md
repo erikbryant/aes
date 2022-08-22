@@ -1,3 +1,7 @@
+![go fmt](https://github.com/erikbryant/aes/actions/workflows/fmt.yml/badge.svg)
+![go vet](https://github.com/erikbryant/aes/actions/workflows/vet.yml/badge.svg)
+![go test](https://github.com/erikbryant/aes/actions/workflows/test.yml/badge.svg)
+
 # aes
 
 AES encryption/decryption library
