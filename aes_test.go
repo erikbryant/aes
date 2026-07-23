@@ -15,18 +15,21 @@ var stringifyTestCases = []struct {
 	{[]byte("a```?><:}{|+_)(*&^%$#@!~`1234567890-=[];,/"), "YWBgYD8+PDp9e3wrXykoKiZeJSQjQCF+YDEyMzQ1Njc4OTAtPVtdOywv"},
 }
 
-func TestStringify(t *testing.T) {
+func TestBase64Encode(t *testing.T) {
 	for _, testCase := range stringifyTestCases {
-		answer := stringify(testCase.buff)
+		answer := base64encode(testCase.buff)
 		if answer != testCase.str {
 			t.Errorf("ERROR: For %v, expected %v, got %v", string(testCase.buff), testCase.str, answer)
 		}
 	}
 }
 
-func TestDestringify(t *testing.T) {
+func TestBase64Decode(t *testing.T) {
 	for _, testCase := range stringifyTestCases {
-		answer := destringify(testCase.str)
+		answer, err := base64decode(testCase.str)
+		if err != nil {
+			t.Errorf("ERROR: For %v, expected nil, got %v", testCase.str, err)
+		}
 		if !bytes.Equal(answer, testCase.buff) {
 			t.Errorf("ERROR: For %v, expected %v, got %v", testCase.str, testCase.buff, answer)
 		}
@@ -42,7 +45,7 @@ func TestMakeKey(t *testing.T) {
 	}
 
 	for _, testCase := range testCases {
-		answer := makeKey(testCase)
+		answer := deriveKey(testCase)
 		if len(answer) != 32 {
 			t.Errorf("ERROR: For %v, expected 32, got %v", testCase, len(answer))
 		}
@@ -101,9 +104,9 @@ func TestDecrypt(t *testing.T) {
 
 	answer, err := Decrypt("", "")
 	if err == nil {
-		t.Errorf("ERROR: For empty strings, exptected err to be non-nil")
+		t.Errorf("ERROR: For empty strings, expected err to be non-nil")
 	}
 	if answer != "" {
-		t.Errorf("ERROR: For empty strings, exptected answer to be empty string")
+		t.Errorf("ERROR: For empty strings, expected answer to be empty string")
 	}
 }

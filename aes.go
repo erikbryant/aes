@@ -11,23 +11,23 @@ import (
 	"io"
 )
 
-// stringify encodes a []byte as a string.
-func stringify(data []byte) string {
+// base64encode encodes a []byte as a string.
+func base64encode(data []byte) string {
 	return base64.StdEncoding.EncodeToString(data)
 }
 
-// destringify decodes a string back into a []byte.
-func destringify(data string) []byte {
-	base64Dec, err := base64.StdEncoding.DecodeString(data)
+// base64decode decodes a string back into a []byte.
+func base64decode(data string) ([]byte, error) {
+	decode, err := base64.StdEncoding.DecodeString(data)
 	if err != nil {
-		panic(err.Error())
+		return nil, fmt.Errorf("base64decode: %w", err)
 	}
 
-	return base64Dec
+	return decode, nil
 }
 
-// makeKey converts the input string to a 32-byte key for encryption.
-func makeKey(key string) string {
+// deriveKey converts the input string to a 32-byte key for encryption.
+func deriveKey(key string) string {
 	hasher := md5.New()
 	hasher.Write([]byte(key))
 
@@ -38,7 +38,7 @@ func makeKey(key string) string {
 func Encrypt(plainData string, passphrase string) (string, error) {
 	data := []byte(plainData)
 
-	block, err := aes.NewCipher([]byte(makeKey(passphrase)))
+	block, err := aes.NewCipher([]byte(deriveKey(passphrase)))
 	if err != nil {
 		return "", err
 	}
@@ -55,14 +55,17 @@ func Encrypt(plainData string, passphrase string) (string, error) {
 
 	ciphertext := gcm.Seal(nonce, nonce, data, nil)
 
-	return stringify(ciphertext), nil
+	return base64encode(ciphertext), nil
 }
 
 // Decrypt decrypts an AES block using a given passphrase.
 func Decrypt(cipherData string, passphrase string) (string, error) {
-	data := destringify(cipherData)
+	data, err := base64decode(cipherData)
+	if err != nil {
+		return "", err
+	}
 
-	key := []byte(makeKey(passphrase))
+	key := []byte(deriveKey(passphrase))
 
 	block, err := aes.NewCipher(key)
 	if err != nil {
@@ -76,7 +79,7 @@ func Decrypt(cipherData string, passphrase string) (string, error) {
 
 	nonceSize := gcm.NonceSize()
 	if len(data) < nonceSize {
-		return "", fmt.Errorf("ERROR: data is shorter than the nonce")
+		return "", fmt.Errorf("ciphertext shorter than nonce")
 	}
 
 	nonce, ciphertext := data[:nonceSize], data[nonceSize:]
